@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Res
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from bson.objectid import ObjectId
+from pymongo.uri_parser import parse_uri
 
 app = Flask(__name__)
 
@@ -13,6 +14,14 @@ app.config["MONGO_URI"] = mongo_uri
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "fsms_secret_key_9988")
 
 mongo = PyMongo(app)
+
+# Startup diagnostics (safe: does not print credentials)
+try:
+    _parsed = parse_uri(mongo_uri)
+    print(f"[FSMS] Connected MongoDB database: {mongo.db.name}")
+    print(f"[FSMS] Connected MongoDB hosts: {_parsed.get('nodelist')}")
+except Exception:
+    print(f"[FSMS] Connected MongoDB database: {mongo.db.name}")
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
